@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Bowl Stats</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #002244;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            background-color: #D50A0A;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: lightgray;
+            padding: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Super Bowl Stats</h1>
+    <div class="chart-container">
+        <svg id="chart"></svg>
+    </div>
+
+</body>
+
+</html>
