@@ -11,12 +11,21 @@
 
 <body>
     <h1>☆★☆★☆★☆★☆★🏈 Super Bowl Statistics 🏈★☆★☆★☆★☆★☆</h1>
-    <div class="chart-container" id="attendance-views">
+
+    <div class="sidebar-container"> 
+        <!-- Container for graphs -->
+        <div class="graph-container">
+            <div class="chart-container" id="attendance-views">
+            </div>
+            <div class="chart-container" id="ticket-cost">
+            </div>
+            <div class="chart-container" id="ad-cost">
+            </div>
+        </div>
+        <aside>Side bar</aside>
     </div>
-    <div class="chart-container" id="ticket-cost">
-    </div>
-    <div class="chart-container" id="ad-cost">
-    </div>
+
+
     <script>
         const formatComma = d3.format(",");
 
@@ -32,7 +41,7 @@
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        d3.csv("data/INFO 4310 - Superbowl Dataset - ThrowbackDataThursday 2019 Week 5 - Super Bowl.csv").then(data => {
+        d3.csv("data/superbowl-dataset.csv").then(data => {
             data.forEach(d => {
                 d.Attendance = +d.Attendance;
                 d.viewers = +d["Average U.S. Viewers"];
@@ -40,18 +49,25 @@
                 d.medianIncome = +d["Avg Median Income (all races)"];
                 d.ticketCostPercentage = (d.ticketCost / d.medianIncome) * 100;
                 d.adCost = +d["Cost Per 30s Ad"];
+                delete d["Average U.S. Viewers"];
+                delete d["Avg cost of tickets (adj for inflation)"];
+                delete d["Avg Median Income (all races)"];
+                delete d["Cost Per 30s Ad"];
             });
 
+            console.log("Cleaned data");
             console.log(data);
 
             const viewsExtent = d3.extent(data, d => d.viewers);
             const attendanceExtent = d3.extent(data, d => d.Attendance);
 
+            console.log("Views Extent");
             console.log(viewsExtent);
+            console.log("Attendance Extent");
             console.log(attendanceExtent);
 
             const xScale = d3.scaleBand()
-                .domain(data.map(d => d.Game))
+                .domain(data.map(d => d.index))
                 .range([0, width])
                 .padding(0.2);
 
@@ -87,11 +103,11 @@
                 .style("fill", "black");
 
             const lineAttendance = d3.line()
-                .x(d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .x(d => xScale(d.index) + xScale.bandwidth() / 2)
                 .y(d => yScaleAttendance(d.Attendance));
 
             const lineViewers = d3.line()
-                .x(d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .x(d => xScale(d.index) + xScale.bandwidth() / 2)
                 .y(d => yScaleViewers(d.viewers));
 
             // add lines
@@ -111,18 +127,20 @@
                 .attr("opacity", 0.5)
                 .attr("d", lineViewers);
 
+
+            // add dotes
             svg.selectAll(".dotViewers")
                 .data(data)
                 .join("circle")
                 .attr("class", "dotViewers")
-                .attr("cx", d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
                 .attr("cy", d => yScaleViewers(d.viewers))
                 .attr("r", 4)
                 .attr("fill", "red")
                 .attr("opacity", 0.75)
                 .on("mouseover", function (event, d) {
                     tooltip.style("visibility", "visible")
-                        .html(`Super Bowl ${d.Game}
+                        .html(`Super Bowl ${d.index}
                         <br>Winner: ${d["Winning team"]}
                         <br> Viewers: ${formatComma(d.viewers)}`)
                         .style("left", `${event.pageX + 10}px`)
@@ -140,7 +158,7 @@
                 .data(data)
                 .join("circle")
                 .attr("class", "dotAttendance")
-                .attr("cx", d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
                 .attr("cy", d => yScaleAttendance(d.Attendance))
                 .attr("r", 4)
                 .attr("opacity", 0.75)
@@ -206,7 +224,7 @@
                 .style("border-radius", "5px")
                 .style("visibility", "hidden");
 
-
+//**********************************************************************************//
             // Second chart for ticket cost as percentage of median income
             const svg2 = d3.select("#ticket-cost")
                 .append("svg")
@@ -237,7 +255,7 @@
                 .style("fill", "black");
 
             const lineTicketCostPercentage = d3.line()
-                .x(d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .x(d => xScale(d.index) + xScale.bandwidth() / 2)
                 .y(d => yScaleTicketCostPercentage(d.ticketCostPercentage));
 
             svg2.append("path")
@@ -251,7 +269,7 @@
                 .data(data)
                 .join("circle")
                 .attr("class", "dotTicketCostPercentage")
-                .attr("cx", d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
                 .attr("cy", d => yScaleTicketCostPercentage(d.ticketCostPercentage))
                 .attr("r", 4)
                 .attr("fill", "green")
@@ -296,6 +314,7 @@
                 .text("Ticket Cost as % of Median Income")
                 .style("font-size", "12px");
 
+//********************************************************************************************//
             // Third chart for ad cost
             const svg3 = d3.select("#ad-cost")
                 .append("svg")
@@ -326,7 +345,7 @@
                 .style("fill", "black");
 
             const lineAdCost = d3.line()
-                .x(d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .x(d => xScale(d.index) + xScale.bandwidth() / 2)
                 .y(d => yScaleAdCost(d.adCost));
 
             svg3.append("path")
@@ -340,7 +359,7 @@
                 .data(data)
                 .join("circle")
                 .attr("class", "dotAdCost")
-                .attr("cx", d => xScale(d.Game) + xScale.bandwidth() / 2)
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
                 .attr("cy", d => yScaleAdCost(d.adCost))
                 .attr("r", 4)
                 .attr("fill", "purple")
