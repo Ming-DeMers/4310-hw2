@@ -49,6 +49,7 @@
                 d.medianIncome = +d["Avg Median Income (all races)"];
                 d.ticketCostPercentage = (d.ticketCost / d.medianIncome) * 100;
                 d.adCost = +d["Cost Per 30s Ad"];
+                d.ticketSales = d.ticketCost * d.Attendance;
                 delete d["Average U.S. Viewers"];
                 delete d["Avg cost of tickets (adj for inflation)"];
                 delete d["Avg Median Income (all races)"];
@@ -128,7 +129,7 @@
                 .attr("d", lineViewers);
 
 
-            // add dotes
+            // add dots
             svg.selectAll(".dotViewers")
                 .data(data)
                 .join("circle")
@@ -140,7 +141,7 @@
                 .attr("opacity", 0.75)
                 .on("mouseover", function (event, d) {
                     tooltip.style("visibility", "visible")
-                        .html(`Super Bowl ${d.index}
+                        .html(`Super Bowl ${d.Game}
                         <br>Winner: ${d["Winning team"]}
                         <br> Viewers: ${formatComma(d.viewers)}`)
                         .style("left", `${event.pageX + 10}px`)
@@ -224,7 +225,7 @@
                 .style("border-radius", "5px")
                 .style("visibility", "hidden");
 
-//**********************************************************************************//
+//Graph 2 **********************************************************************************//
             // Second chart for ticket cost as percentage of median income
             const svg2 = d3.select("#ticket-cost")
                 .append("svg")
@@ -235,11 +236,17 @@
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
             const ticketCostPercentageExtent = d3.extent(data, d => d.ticketCostPercentage);
+            const ticketCost = d3.extent(data, d => d.ticketCost);
 
             const yScaleTicketCostPercentage = d3.scaleLinear()
-                .domain(ticketCostPercentageExtent)
-                .nice()
-                .range([height, 0]);
+                                                 .domain(ticketCostPercentageExtent)
+                                                 .nice()
+                                                 .range([height, 0]);
+
+            const yScaleTicketCost = d3.scaleLinear()
+                                       .domain(ticketCost)
+                                       .range([height,0]);
+
 
             svg2.append("g")
                 .attr("transform", `translate(0,${height})`)
@@ -254,9 +261,20 @@
                 .style("font-size", "12px")
                 .style("fill", "black");
 
+            svg2.append("g")
+                .call(d3.axisRight(yScaleTicketCost))
+                .attr("transform", `translate(${width - 10},0)`)
+                .selectAll("text")
+                .style("font-size", "12px")
+                .style("fill", "black");
             const lineTicketCostPercentage = d3.line()
-                .x(d => xScale(d.index) + xScale.bandwidth() / 2)
-                .y(d => yScaleTicketCostPercentage(d.ticketCostPercentage));
+                                                .x(d => xScale(d.index) + xScale.bandwidth() / 2)
+                                                .y(d => yScaleTicketCostPercentage(d.ticketCostPercentage));
+
+            const lineTicketCost = d3.line()
+                                     .x(d => xScale(d.index) + xScale.bandwidth() / 2)
+                                     .y(d => yScaleTicketCost(d.ticketCost));
+
 
             svg2.append("path")
                 .datum(data)
@@ -264,6 +282,13 @@
                 .attr("stroke", "green")
                 .attr("stroke-width", 2)
                 .attr("d", lineTicketCostPercentage);
+            
+            svg2.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2)
+                .attr("d", lineTicketCost);
 
             svg2.selectAll(".dotTicketCostPercentage")
                 .data(data)
@@ -291,10 +316,39 @@
                     tooltip.style("visibility", "hidden");
                 });
 
+                //dots for ticket costs
+
+                svg2.selectAll(".dotTicketCost")
+                .data(data)
+                .join("circle")
+                .attr("class", "dotTicketCost")
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
+                .attr("cy", d => yScaleTicketCost(d.ticketCost))
+                .attr("r", 4)
+                .attr("fill", "blue")
+                .on("mouseover", function (event, d) {
+                    tooltip.style("visibility", "visible")
+                        .html(`Super Bowl ${d.Game}
+                        <br>Winner: ${d["Winning team"]}
+                        <br>Ticket Cost: $${formatComma(d.ticketCost.toFixed(2))}
+                        <br>Median Income: $${formatComma(d.medianIncome.toFixed(2))}
+                        <br>Cost as % Income: ${d.ticketCostPercentage.toFixed(2)}%`)
+                        .style("left", `${event.pageX + 10}px`)
+                        .style("top", `${event.pageY}px`);
+                })
+                .on("mousemove", function (event) {
+                    tooltip.style("left", `${event.pageX + 10}px`)
+                        .style("top", `${event.pageY}px`);
+                })
+                .on("mouseout", function () {
+                    tooltip.style("visibility", "hidden");
+                });
+            
+
             svg2.append("text")
                 .attr("x", 100)
                 .attr("y", 0)
-                .text("Ticket Cost as % of Median Income")
+                .text("Ticket Cost as % of Median Income & Ticket Prices")
                 .style("font-size", "24px");
 
             const legend2 = svg2.append("g")
@@ -314,7 +368,7 @@
                 .text("Ticket Cost as % of Median Income")
                 .style("font-size", "12px");
 
-//********************************************************************************************//
+//Graph 3: ********************************************************************************************//
             // Third chart for ad cost
             const svg3 = d3.select("#ad-cost")
                 .append("svg")
@@ -325,11 +379,22 @@
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
             const adCostExtent = d3.extent(data, d => d.adCost);
+            const ticketSalesExtent = d3.extent(data, d => d.ticketSales);
+
+            console.log("Ticket Sales Extent");
+            console.log(ticketSalesExtent)
 
             const yScaleAdCost = d3.scaleLinear()
                 .domain(adCostExtent)
                 .nice()
                 .range([height, 0]);
+
+            const yScaleTicketSales = d3.scaleLinear()
+                .domain(ticketSalesExtent)
+                .nice()
+                .range([height, 0]);
+
+
 
             svg3.append("g")
                 .attr("transform", `translate(0,${height})`)
@@ -343,10 +408,21 @@
                 .selectAll("text")
                 .style("font-size", "12px")
                 .style("fill", "black");
+                
+            svg3.append("g")
+                .call(d3.axisRight(yScaleTicketSales))
+                .attr("transform", `translate(${width - 10},0)`)
+                .selectAll("text")
+                .style("font-size", "12px")
+                .style("fill", "black");
 
             const lineAdCost = d3.line()
                 .x(d => xScale(d.index) + xScale.bandwidth() / 2)
                 .y(d => yScaleAdCost(d.adCost));
+
+            const ticketSales = d3.line()
+                .x(d => xScale(d.index) + xScale.bandwidth() / 2)
+                .y(d => yScaleTicketSales(d.ticketSales));
 
             svg3.append("path")
                 .datum(data)
@@ -354,6 +430,13 @@
                 .attr("stroke", "purple")
                 .attr("stroke-width", 2)
                 .attr("d", lineAdCost);
+
+            svg3.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2)
+                .attr("d", ticketSales);
 
             svg3.selectAll(".dotAdCost")
                 .data(data)
@@ -365,11 +448,35 @@
                 .attr("fill", "purple")
                 .on("mouseover", function (event, d) {
                     tooltip.style("visibility", "visible")
-                        .html(`Super Bowl ${d.Game}
-                        <br>Winner: ${d["Winning team"]}
-                        <br>Ad Cost: $${formatComma(d.adCost.toFixed(2))}`)
-                        .style("left", `${event.pageX + 10}px`)
+                            .html(`Super Bowl ${d.Game}
+                            <br>Winner: ${d["Winning team"]}
+                            <br>Ad Cost: $${formatComma(d.adCost.toFixed(2))}`)
+                            .style("left", `${event.pageX + 10}px`)
+                            .style("top", `${event.pageY}px`);
+                })
+                .on("mousemove", function (event) {
+                    tooltip.style("left", `${event.pageX + 10}px`)
                         .style("top", `${event.pageY}px`);
+                })
+                .on("mouseout", function () {
+                    tooltip.style("visibility", "hidden");
+                });
+
+            svg3.selectAll(".dotTicketSales")
+                .data(data)
+                .join("circle")
+                .attr("class", "dotTicketSales")
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
+                .attr("cy", d => yScaleTicketSales(d.ticketSales))
+                .attr("r", 4)
+                .attr("fill", "blue")
+                .on("mouseover", function (event, d) {
+                    tooltip.style("visibility", "visible")
+                            .html(`Super Bowl ${d.Game}
+                            <br>Winner: ${d["Winning team"]}
+                            <br>Ad Cost: $${formatComma(d.adCost.toFixed(2))}`)
+                            .style("left", `${event.pageX + 10}px`)
+                            .style("top", `${event.pageY}px`);
                 })
                 .on("mousemove", function (event) {
                     tooltip.style("left", `${event.pageX + 10}px`)
@@ -382,7 +489,7 @@
             svg3.append("text")
                 .attr("x", 100)
                 .attr("y", 0)
-                .text("Cost of a 30 Second Ad Over Time")
+                .text("Cost of a 30 Second Ad Over Time & Total Ticket Sales")
                 .style("font-size", "24px");
 
             const legend3 = svg3.append("g")
