@@ -25,6 +25,7 @@
                     <option value="medianIncome">Median Income</option>
                     <option value="ticketCostPercentage">Cost as % Income</option>
                     <option value="adCost">Ad Cost</option>
+                    <option value="ticketSales">Ticket Sales</option>
                 </select>
             
                 <label for="yAttribute">Select Second Attribute:</label>
@@ -216,6 +217,12 @@
                     Super Bowl ${d.Game} (${d.index})
                             <br> Winner: ${d["Winning team"]}
                             <br> Date: ${d['Date']}
+                            <br> <b>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
+                            <br> <b>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}
+                            <br>
+                            <br> All Info 
+                            <br> Median Income: ${d.medianIncome}
+                            <br> Ticket Cost % : ${d.ticketCostPercentage}
                             <br> Viewers: ${formatComma(d.viewers)}
                             <br> Attendees: ${formatComma(d['Attendance'])}
                             <br> Ticket Cost: $${formatComma(d['ticketCost'])}
@@ -252,6 +259,12 @@
                     Super Bowl ${d.Game} (${d.index})
                             <br> Winner: ${d["Winning team"]}
                             <br> Date: ${d['Date']}
+                            <br> <b>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
+                            <br> <b>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}
+                            <br>
+                            <br> All Info 
+                            <br> Median Income: ${d.medianIncome}
+                            <br> Ticket Cost % : ${d.ticketCostPercentage}
                             <br> Viewers: ${formatComma(d.viewers)}
                             <br> Attendees: ${formatComma(d['Attendance'])}
                             <br> Ticket Cost: $${formatComma(d['ticketCost'])}
