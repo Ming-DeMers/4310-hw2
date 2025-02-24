@@ -12,18 +12,40 @@
 <body>
     <h1>☆★☆★☆★☆★☆★🏈 Super Bowl Statistics 🏈★☆★☆★☆★☆★☆</h1>
 
+    <div>
+        <label for="xAttribute">Select X Attribute:</label>
+        <select id="xAttribute">
+            <option value="Attendance">Attendance</option>
+            <option value="viewers">Viewers</option>
+            <option value="ticketCost">Ticket Cost</option>
+            <option value="medianIncome">Median Income</option>
+            <option value="ticketCostPercentage">Cost as % Income</option>
+            <option value="adCost">Ad Cost</option>
+        </select>
+    
+        <label for="yAttribute">Select Y Attribute:</label>
+        <select id="yAttribute">
+            <option value="Attendance">Attendance</option>
+            <option value="viewers">Viewers</option>
+            <option value="ticketCost">Ticket Cost</option>
+            <option value="medianIncome">Median Income</option>
+            <option value="ticketCostPercentage">Cost as % Income</option>
+            <option value="adCost">Ad Cost</option>
+        </select>
+    </div>
+
     <div class="sidebar-container"> 
         <!-- Container for graphs -->
         <div class="graph-container">
-            <div class="chart-container" id="attendance-views">
-            </div>
-            <div class="chart-container" id="ticket-cost">
-            </div>
-            <div class="chart-container" id="ad-cost">
-            </div>
+            <div class="chart-container" id="attendance-views"></div>
+            <div class="chart-container" id="ticket-cost"></div>
+            <div class="chart-container" id="ad-cost"></div>
+            <div class="chart-container" id="choose-attribute"></div>
         </div>
-        <aside>Side bar</aside>
+        <aside id="sidebar">Side bar</aside>
     </div>
+
+
 
 
     <script>
@@ -40,6 +62,8 @@
             .style("background", "white")
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const sidebar = d3.select("#sidebar")
 
         d3.csv("data/superbowl-dataset.csv").then(data => {
             data.forEach(d => {
@@ -142,10 +166,20 @@
                 .on("mouseover", function (event, d) {
                     tooltip.style("visibility", "visible")
                         .html(`Super Bowl ${d.Game}
-                        <br>Winner: ${d["Winning team"]}
-                        <br> Viewers: ${formatComma(d.viewers)}`)
-                        .style("left", `${event.pageX + 10}px`)
-                        .style("top", `${event.pageY}px`);
+                                        <br>Winner: ${d["Winning team"]}
+                                        <br> Viewers: ${formatComma(d.viewers)}`)
+                                        .style("left", `${event.pageX + 10}px`)
+                                        .style("top", `${event.pageY}px`)
+
+                                        
+                        sidebar.html(`Super Bowl ${d.Game} (${d.index})
+                                        <br> Winner: ${d["Winning team"]}
+                                        <br> Date: ${d['Date']}
+                                        <br> Viewers: ${formatComma(d.viewers)}
+                                        <br> Attendees: ${d['Attendance']}
+                                        <br> Ticket Cost: ${d['ticketCost']}
+                                        <br> Ad Cost:  ${d['adCost']} 
+                                        `)
                 })
                 .on("mousemove", function (event) {
                     tooltip.style("left", `${event.pageX + 10}px`)
@@ -166,11 +200,25 @@
                 .attr("fill", "blue")
                 .on("mouseover", function (event, d) {
                     tooltip.style("visibility", "visible")
-                        .html(`Super Bowl ${d.Game}
-                        <br>Winner: ${d["Winning team"]}
-                        <br>Attendees: ${formatComma(d.Attendance)}`)
-                        .style("left", `${event.pageX + 10}px`)
-                        .style("top", `${event.pageY}px`);
+                            .html(`Super Bowl ${d.Game}
+                                <br>Winner: ${d["Winning team"]}
+                                <br>Attendees: ${formatComma(d.Attendance)}`)
+                        
+                            .style("left", `${event.pageX + 10}px`)
+                            .style("top", `${event.pageY}px`)
+                        
+                        
+                        
+                    sidebar.html(`Super Bowl ${d.Game} (${d.index})
+                                        <br> Winner: ${d["Winning team"]}
+                                        <br> Date: ${d['Date']}
+                                        <br> Viewers: ${formatComma(d.viewers)}
+                                        <br> Attendees: ${d['Attendance']}
+                                        <br>Ticket Cost: $${formatComma(d.ticketCost.toFixed(2))}
+                                        <br>Median Income: $${formatComma(d.medianIncome.toFixed(2))}
+                                        <br>Cost as % Income: ${d.ticketCostPercentage.toFixed(2)}%
+                                        <br> Ad Cost:  ${d['adCost']} 
+                                        `);
                 })
                 .on("mousemove", function (event) {
                     tooltip.style("left", `${event.pageX + 10}px`)
@@ -306,7 +354,22 @@
                         <br>Median Income: $${formatComma(d.medianIncome.toFixed(2))}
                         <br>Cost as % Income: ${d.ticketCostPercentage.toFixed(2)}%`)
                         .style("left", `${event.pageX + 10}px`)
-                        .style("top", `${event.pageY}px`);
+                        .style("top", `${event.pageY}px`)
+
+                        sidebar.html(`Super Bowl ${d.Game}
+                                        <br> Winner: ${d["Winning team"]}
+                                        <br> Date: ${d['Date']}
+                                        <br> Viewers: ${formatComma(d.viewers)}
+                                        <br> Attendees: ${d['Attendance']}
+                                        <br>Ticket Cost: $${formatComma(d.ticketCost.toFixed(2))}
+                                        <br>Median Income: $${formatComma(d.medianIncome.toFixed(2))}
+                                        <br>Cost as % Income: ${d.ticketCostPercentage.toFixed(2)}%
+                                        <br> Ad Cost:  ${d['adCost']} 
+                                        `)
+                        
+                        
+                        
+                        ;
                 })
                 .on("mousemove", function (event) {
                     tooltip.style("left", `${event.pageX + 10}px`)
@@ -378,6 +441,8 @@
                 .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
+            const sidebar = d3.select("#sidebar")
+
             const adCostExtent = d3.extent(data, d => d.adCost);
             const ticketSalesExtent = d3.extent(data, d => d.ticketSales);
 
@@ -448,7 +513,7 @@
                 .attr("fill", "purple")
                 .on("mouseover", function (event, d) {
                     tooltip.style("visibility", "visible")
-                            .html(`Super Bowl ${d.Game}
+                            sidebar.html(`Super Bowl ${d.Game}
                             <br>Winner: ${d["Winning team"]}
                             <br>Ad Cost: $${formatComma(d.adCost.toFixed(2))}`)
                             .style("left", `${event.pageX + 10}px`)
@@ -460,6 +525,7 @@
                 })
                 .on("mouseout", function () {
                     tooltip.style("visibility", "hidden");
+                    sidebar.html("")
                 });
 
             svg3.selectAll(".dotTicketSales")
@@ -508,7 +574,15 @@
                 .attr("y", 5)
                 .text("Ad Cost")
                 .style("font-size", "12px");
+
+
         });
+
+
+    </script>
+
+    <script>
+
     </script>
 
 </body>
