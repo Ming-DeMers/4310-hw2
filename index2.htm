@@ -17,7 +17,7 @@
         <!-- Container for graphs -->
         <div class="graph-container">
             <div>
-                <label for="xAttribute">Select X Attribute:</label>
+                <label for="xAttribute">Select First Attribute</label>
                 <select id="xAttribute">
                     <option value="attendance">Attendance</option>
                     <option value="viewers">Viewers</option>
@@ -27,7 +27,7 @@
                     <option value="adCost">Ad Cost</option>
                 </select>
             
-                <label for="yAttribute">Select Y Attribute:</label>
+                <label for="yAttribute">Select Second Attribute:</label>
                 <select id="yAttribute">
                     <option value="attendance">Attendance</option>
                     <option value="viewers">Viewers</option>
@@ -39,7 +39,7 @@
             </div>
             <div class="chart-container" id="choose-attribute"></div>
         </div>
-        <aside id="sidebar">Side bar</aside>
+        <aside class="sidebar" id="sidebar">Hover over a point to see more details</aside>
     </div>
 
 
@@ -93,6 +93,27 @@
                 "attendance" : "Attendance",
             }
 
+            let logoDictionary = {
+                "Green Bay Packers": "green-bay-packers.png",
+                "New York Jets": "new-york-jets.png",
+                "Kansas City Chiefs": "kansas-city-chiefs.png",
+                "Baltimore Colts": "baltimore-colts.png",
+                "Dallas Cowboys": "dallas-cowboys.png",
+                "Miami Dolphins": "miami-dolphins.png",
+                "Pittsburgh Steelers": "pittsburgh-steelers.png",
+                "Oakland Raiders": "oakland-raiders.png",
+                "San Francisco 49ers": "san-francisco-49ers.png",
+                "Washington Redskins": "washington-redskins.png",
+                "Los Angeles Raiders": "los-angeles-raiders.png",
+                "Chicago Bears": "chicago-bears.png",
+                "New York Giants": "new-york-giants.png",
+                "Denver Broncos": "denver-broncos.png",
+                "St. Louis Rams": "st-louis-rams.png",
+                "Baltimore Ravens": "baltimore-ravens.png",
+                "New England Patriots": "new-england-patriots.png",
+                "Tampa Bay Buccaneers": "tampa-bay-buccaneers.png",
+                "Indianapolis Colts": "indianapolis-colts.png"
+            };
             function updateGraph() {
 
                 const attribute1 = attributeSelect1.property("value");
@@ -170,70 +191,76 @@
                 .attr("d", line2);
 
             svg.selectAll(".dotAttribute1")
-                    .data(data)
-                    .join("circle")
-                    .attr("class", "dotAttribute1")
-                    .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
-                    .attr("cy", d => yScale1(d[attribute1]))
-                    .attr("r", 4)
-                    .attr("fill", "blue")
-                    .on("mouseover", function (event, d) {
-                        tooltip.style("visibility", "visible")
-                                .html(`Super Bowl ${d.Game}
-                                    <br>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
-                                    <br>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}`)
-                                .style("left", `${event.pageX + 10}px`)
-                                .style("top", `${event.pageY}px`);
-
-                        sidebar.html(`Super Bowl ${d.Game} (${d.index})
-                                     <br> Winner: ${d["Winning team"]}
-                                        <br> Date: ${d['Date']}
-                                        <br> Viewers: ${formatComma(d.viewers)}
-                                        <br> Attendees: ${formatComma(d['Attendance'])}
-                                        <br> Ticket Cost: ${formatComma(d['ticketCost'])}
-                                        <br> Ad Cost:  ${formatComma(d['adCost'])}
-                                    `);
-                    })
-                    .on("mousemove", function (event) {
-                        tooltip.style("left", `${event.pageX + 10}px`)
+                .data(data)
+                .join("circle")
+                .attr("class", "dotAttribute1")
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
+                .attr("cy", d => yScale1(d[attribute1]))
+                .attr("r", 4)
+                .attr("fill", "blue")
+                .on("mouseover", function (event, d) {
+                    tooltip.style("visibility", "visible")
+                            .html(`
+                            Super Bowl ${d.Game}
+                                <br>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
+                                <br>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}`)
+                            .style("left", `${event.pageX + 10}px`)
                             .style("top", `${event.pageY}px`);
+
+                    sidebar.html(`
+                    <img src="logos/${logoDictionary[d["Winning Team"]]}" alt="${d["Winning Team"]} logo">
+                    Super Bowl ${d.Game} (${d.index})
+                                <br> Winner: ${d["Winning team"]}
+                                <br> Date: ${d['Date']}
+                                <br> Viewers: ${formatComma(d.viewers)}
+                                <br> Attendees: ${formatComma(d['Attendance'])}
+                                <br> Ticket Cost: $${formatComma(d['ticketCost'])}
+                                <br> Ad Cost:  $${formatComma(d['adCost'])}
+                            `);
                     })
-                    .on("mouseout", function () {
-                        tooltip.style("visibility", "hidden");
-                    });
+                .on("mousemove", function (event) {
+                    tooltip.style("left", `${event.pageX + 10}px`)
+                        .style("top", `${event.pageY}px`);
+                })
+                .on("mouseout", function () {
+                    tooltip.style("visibility", "hidden");
+                });
 
             svg.selectAll(".dotAttribute2")
-                    .data(data)
-                    .join("circle")
-                    .attr("class", "dotAttribute2")
-                    .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
-                    .attr("cy", d => yScale2(d[attribute2]))
-                    .attr("r", 4)
-                    .attr("fill", "red")
-                    .on("mouseover", function (event, d) {
-                        tooltip.style("visibility", "visible")
-                                .html(`Super Bowl ${d.Game}
-                                    <br>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
-                                    <br>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}`)
-                                .style("left", `${event.pageX + 10}px`)
-                                .style("top", `${event.pageY}px`);
-
-                        sidebar.html(`Super Bowl ${d.Game} (${d.index})
-                                     <br> Winner: ${d["Winning team"]}
-                                        <br> Date: ${d['Date']}
-                                        <br> Viewers: ${formatComma(d.viewers)}
-                                        <br> Attendees: ${d['Attendance']}
-                                        <br> Ticket Cost: ${d['ticketCost']}
-                                        <br> Ad Cost:  ${d['adCost']}
-                                    `);
-                    })
-                    .on("mousemove", function (event) {
-                        tooltip.style("left", `${event.pageX + 10}px`)
+                .data(data)
+                .join("circle")
+                .attr("class", "dotAttribute2")
+                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
+                .attr("cy", d => yScale2(d[attribute2]))
+                .attr("r", 4)
+                .attr("fill", "red")
+                .on("mouseover", function (event, d) {
+                    console.log(logoDictionary[d["Winning team"]])
+                    tooltip.style("visibility", "visible")
+                            .html(`Super Bowl ${d.Game}
+                                <br>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
+                                <br>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}`)
+                            .style("left", `${event.pageX + 10}px`)
                             .style("top", `${event.pageY}px`);
+
+                    sidebar.html(`
+                    <img src="logos/${logoDictionary[d["Winning team"]]}" width="100" height="100" alt="${d["Winning Team"]} logo">
+                    Super Bowl ${d.Game} (${d.index})
+                            <br> Winner: ${d["Winning team"]}
+                            <br> Date: ${d['Date']}
+                            <br> Viewers: ${formatComma(d.viewers)}
+                            <br> Attendees: ${formatComma(d['Attendance'])}
+                            <br> Ticket Cost: $${formatComma(d['ticketCost'])}
+                            <br> Ad Cost:  $${formatComma(d['adCost'])}
+                        `);
                     })
-                    .on("mouseout", function () {
-                        tooltip.style("visibility", "hidden");
-                    });
+                .on("mousemove", function (event) {
+                    tooltip.style("left", `${event.pageX + 10}px`)
+                        .style("top", `${event.pageY}px`);
+                })
+                .on("mouseout", function () {
+                    tooltip.style("visibility", "hidden");
+                });
 
 
             //Chart details
@@ -241,7 +268,7 @@
                 .attr("x", width / 2 - margin.left - margin.right)
                 .attr("y", 0)
                 .text(`${attributeDictionary[attribute1]} vs ${attributeDictionary[attribute2]} `)
-                .style("font-size", "24px");
+                .style("font-size", "20px");
 
 
             //  X-axis label
@@ -249,7 +276,7 @@
                 .attr("x", width / 2)
                 .attr("y", height + margin.bottom - 10)
                 .attr("text-anchor", "middle")
-                .attr("font-size", "12px")
+                .attr("font-size", "16px")
                 .text("Superbowl Number (Decimal)");
 
             // Y Attribute 1 label
@@ -258,7 +285,7 @@
                 .attr("x", -height / 2)
                 .attr("y", -margin.left + 10)
                 .attr("text-anchor", "middle")
-                .attr("font-size", "12px")
+                .attr("font-size", "16px")
                 .text(`${attributeDictionary[attribute1]}`);
             
             // Y Attribute 2 label
@@ -267,7 +294,7 @@
                 .attr("x", -height / 2)
                 .attr("y", width + margin.right)
                 .attr("text-anchor", "middle")
-                .attr("font-size", "12px")
+                .attr("font-size", "16px")
                 .text(`${attributeDictionary[attribute2]}`);
 
                     }
