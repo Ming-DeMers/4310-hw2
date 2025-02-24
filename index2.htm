@@ -102,7 +102,8 @@
                 "Miami Dolphins": "miami-dolphins.png",
                 "Pittsburgh Steelers": "pittsburgh-steelers.png",
                 "Oakland Raiders": "oakland-raiders.png",
-                "San Francisco 49ers": "san-francisco-49ers.png",
+                "San Francisco 49er": "san-francisco-49er.png",
+                "San Francisco 49ers": "san-francisco-49er.png",
                 "Washington Redskins": "washington-redskins.png",
                 "Los Angeles Raiders": "los-angeles-raiders.png",
                 "Chicago Bears": "chicago-bears.png",
@@ -112,7 +113,10 @@
                 "Baltimore Ravens": "baltimore-ravens.png",
                 "New England Patriots": "new-england-patriots.png",
                 "Tampa Bay Buccaneers": "tampa-bay-buccaneers.png",
-                "Indianapolis Colts": "indianapolis-colts.png"
+                "Indianapolis Colts": "indianapolis-colts.png",
+                "Seattle Seahawks" : "seattle-seahawks.png",
+                "Philadelphia Eagles": "philadelphia-eagles.png",
+                "New Orleans Saints": "new-orleans-saints.png"
             };
             function updateGraph() {
 
@@ -208,15 +212,15 @@
                             .style("top", `${event.pageY}px`);
 
                     sidebar.html(`
-                    <img src="logos/${logoDictionary[d["Winning Team"]]}" alt="${d["Winning Team"]} logo">
+                    <img src="logos/${logoDictionary[d["Winning team"]]}" width="100" height="100" alt="${d["Winning Team"]} logo">
                     Super Bowl ${d.Game} (${d.index})
-                                <br> Winner: ${d["Winning team"]}
-                                <br> Date: ${d['Date']}
-                                <br> Viewers: ${formatComma(d.viewers)}
-                                <br> Attendees: ${formatComma(d['Attendance'])}
-                                <br> Ticket Cost: $${formatComma(d['ticketCost'])}
-                                <br> Ad Cost:  $${formatComma(d['adCost'])}
-                            `);
+                            <br> Winner: ${d["Winning team"]}
+                            <br> Date: ${d['Date']}
+                            <br> Viewers: ${formatComma(d.viewers)}
+                            <br> Attendees: ${formatComma(d['Attendance'])}
+                            <br> Ticket Cost: $${formatComma(d['ticketCost'])}
+                            <br> Ad Cost:  $${formatComma(d['adCost'])}
+                        `);
                     })
                 .on("mousemove", function (event) {
                     tooltip.style("left", `${event.pageX + 10}px`)
