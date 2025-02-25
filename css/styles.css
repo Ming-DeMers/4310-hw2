@@ -1,24 +1,31 @@
 
+/* Colors: blue -> #001e3c;*/
+
 body {
     font-family: Arial, sans-serif;
     background-color: #001e3c;
-    color: white;
+    color: #ffffff;
     text-align: center;
 }
 
 h1 {
     background-color: #D50A0A;
     padding: 20px;
-    margin: 0;
+    margin: 10 0 0 0;
     border-radius: 15px;
     box-shadow: 5px 5px 15px #D50A0A;
 
 }
 
+p{
+    text-align: left;
+    margin-left: 20px;
+    font-size: 18px;
+}
 .chart-container {
     display: flex;
     justify-content: center;
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 .chart-container svg {
@@ -53,12 +60,16 @@ h1 {
     background-color: white;
     color: black;
     height: 400px;
-    width: 300px;
+    width: 400px;
     margin: 200px 30px 0px 30px;
     text-align: left;
     border-radius: 15px;
 }
 
+select{
+    padding: 10px;
+    margin-right: 40px;
+}
 svg{
     padding: 20px;
 }
@@ -66,4 +77,31 @@ svg{
 img{
     padding: 10px;
     margin: 25px;
+}
+.bold{
+    font-weight: bold;
+}
+strong{
+    padding: 0;
+    margin: 0;
+}
+.gridlines{
+    color: black;
+}
+.graph-selection{
+    justify-content: center;
+    margin: 40px 0px 0px 0px;
+}
+.row{
+    display: flex;
+    flex-direction: row;
+    text-align: left;
+}
+.column{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+.action{
+    text-align: center;
 }

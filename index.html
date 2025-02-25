@@ -12,11 +12,22 @@
 <body>
     <h1>☆★☆★☆★☆★☆★🏈 Super Bowl Statistics 🏈★☆★☆★☆★☆★☆</h1>
 
+    <div class="row">
+        <p> It's Superbowl Time! With the end of Superbowl LII we wanted to investigate the accessibility and affordability of the Superbowl for the average American.
+            With ticket prices soaring over the past few years and ads costing companies millions of dollars we invite you to explore different 
+        aspects of Superbowl data with the visualizations below. Some notable ones we noticed during our initial exploration 
+        of the dataset are to the right. Graph 1 is (Cost as % of Income vs. Ticket Cost) and Graph 2 is (Ad Cost vs. Ticket Sales)</p>
+
+        <img src="images/graph1.png" width="500" height="300"/>
+        <img src="images/graph2.png" width="500" height="300"/>
+    </div>
+
 
     <div class="sidebar-container"> 
         <!-- Container for graphs -->
         <div class="graph-container">
-            <div>
+            <div class="graph-selection">
+                <p class="action"> Pick an attribute to change the graph!</p>
                 <label for="xAttribute">Select First Attribute</label>
                 <select id="xAttribute">
                     <option value="attendance">Attendance</option>
@@ -36,6 +47,8 @@
                     <option value="medianIncome">Median Income</option>
                     <option value="ticketCostPercentage">Cost as % Income</option>
                     <option value="adCost">Ad Cost</option>
+                    <option value="ticketSales">Ticket Sales</option>
+                    
                 </select>
             </div>
             <div class="chart-container" id="choose-attribute"></div>
@@ -47,8 +60,8 @@
     <script>
         const formatComma = d3.format(",");
 
-        const margin = { top: 50, right: 70, bottom: 50, left: 80 },
-            width = 1100 - margin.left - margin.right,
+        const margin = { top: 50, right: 90, bottom: 50, left: 100 },
+            width = 1050 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
         const svg = d3.select("#choose-attribute")
@@ -92,6 +105,7 @@
                 "medianIncome" : "Median Income",
                 "ticketCostPercentage" : "Ticket Cost as % of Income",
                 "attendance" : "Attendance",
+                "ticketSales": "Total Ticket Sales"
             }
 
             let logoDictionary = {
@@ -146,8 +160,24 @@
                 .style("border-radius", "5px")
                 .style("visibility", "hidden");
 
+                //gridlines
+                let yAxis = d3.axisLeft(yScale1);   
+                let yGridlines = d3.axisLeft(yScale1)
+                                           .tickSize(-width)
+                                           .tickFormat('');
+                                        
+                        
+                let xAxis = d3.axisBottom(xScale);
+                let xGridlines = d3.axisBottom(xScale)
+                                        .tickSize(-height)
+                                        .tickSizeOuter(0)
+                                        .tickFormat('');
+
+
+
 
                 svg.selectAll("*").remove();
+
 
                 svg.append("g")
                     .attr("transform", `translate(0,${height})`)
@@ -195,15 +225,35 @@
                 .attr("opacity", 0.5)
                 .attr("d", line2);
 
+        
             svg.selectAll(".dotAttribute1")
                 .data(data)
-                .join("circle")
-                .attr("class", "dotAttribute1")
-                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
-                .attr("cy", d => yScale1(d[attribute1]))
-                .attr("r", 4)
-                .attr("fill", "blue")
+                .join("g")
+                .each(function (d) {
+                    d3.select(this)
+                        .append("circle")
+                        .attr("class", "dotAttribute1")
+                        .attr("cx", xScale(d.index) + xScale.bandwidth() / 2)
+                        .attr("cy", yScale1(d[attribute1]))
+                        .attr("r", 4)
+                        .attr("fill", "blue");
+
+                    d3.select(this)
+                        .append("image")
+                        .attr("class", "hover-image")
+                        .attr("x", xScale(d.index) + xScale.bandwidth() / 2 - 20) // Adjust position to center the image
+                        .attr("y", yScale1(d[attribute1]) - 20) // Adjust position to center the image
+                        .attr("width", 40)
+                        .attr("height", 40)
+                        .attr("xlink:href", `logos/football.png`)
+                        .style("visibility", "hidden");
+
+                })
+
                 .on("mouseover", function (event, d) {
+                    d3.select(this).select(".dotAttribute1").style("visibility", "hidden");
+                    d3.select(this).select(".hover-image").style("visibility", "visible");
+                    
                     tooltip.style("visibility", "visible")
                             .html(`
                             Super Bowl ${d.Game}
@@ -213,40 +263,61 @@
                             .style("top", `${event.pageY}px`);
 
                     sidebar.html(`
-                    <img src="logos/${logoDictionary[d["Winning team"]]}" width="100" height="100" alt="${d["Winning Team"]} logo">
+                    <strong>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])} </strong>
+                    <strong>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])} </strong>
+                    <img src="logos/${logoDictionary[d["Winning team"]]}" width="125" height="125" alt="${d["Winning Team"]} logo">
                     Super Bowl ${d.Game} (${d.index})
                             <br> Winner: ${d["Winning team"]}
                             <br> Date: ${d['Date']}
-                            <br> <b>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
-                            <br> <b>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}
-                            <br>
-                            <br> All Info 
                             <br> Median Income: ${d.medianIncome}
-                            <br> Ticket Cost % : ${d.ticketCostPercentage}
+                            <br> Ticket Cost %: %${d.ticketCostPercentage}
                             <br> Viewers: ${formatComma(d.viewers)}
                             <br> Attendees: ${formatComma(d['Attendance'])}
                             <br> Ticket Cost: $${formatComma(d['ticketCost'])}
                             <br> Ad Cost:  $${formatComma(d['adCost'])}
+                            <br> Ticket Sales: $${formatComma(d['ticketSales'])}
                         `);
                     })
                 .on("mousemove", function (event) {
                     tooltip.style("left", `${event.pageX + 10}px`)
                         .style("top", `${event.pageY}px`);
+                    
                 })
                 .on("mouseout", function () {
+                    d3.select(this).select(".dotAttribute1").style("visibility", "visible");
+                    d3.select(this).select(".hover-image").style("visibility", "hidden");
                     tooltip.style("visibility", "hidden");
+
                 });
 
+              
             svg.selectAll(".dotAttribute2")
                 .data(data)
-                .join("circle")
-                .attr("class", "dotAttribute2")
-                .attr("cx", d => xScale(d.index) + xScale.bandwidth() / 2)
-                .attr("cy", d => yScale2(d[attribute2]))
-                .attr("r", 4)
-                .attr("fill", "red")
+                .join("g")
+                .each(function (d) {
+                    d3.select(this)
+                        .append("circle")
+                        .attr("class", "dotAttribute2")
+                        .attr("cx", xScale(d.index) + xScale.bandwidth() / 2)
+                        .attr("cy", yScale2(d[attribute2]))
+                        .attr("r", 4)
+                        .attr("fill", "red");
+
+                    d3.select(this)
+                        .append("image")
+                        .attr("class", "hover-image")
+                        .attr("x", xScale(d.index) + xScale.bandwidth() / 2 - 20) // Adjust position to center the image
+                        .attr("y", yScale2(d[attribute2]) - 20) // Adjust position to center the image
+                        .attr("width", 40)
+                        .attr("height", 40)
+                        .attr("xlink:href", `logos/football.png`)
+                        .style("visibility", "hidden");
+
+                })
                 .on("mouseover", function (event, d) {
-                    console.log(logoDictionary[d["Winning team"]])
+                    d3.select(this).select(".dotAttribute1").style("visibility", "hidden");
+                    d3.select(this).select(".hover-image").style("visibility", "visible");
+                    
                     tooltip.style("visibility", "visible")
                             .html(`Super Bowl ${d.Game}
                                 <br>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
@@ -255,34 +326,41 @@
                             .style("top", `${event.pageY}px`);
 
                     sidebar.html(`
-                    <img src="logos/${logoDictionary[d["Winning team"]]}" width="100" height="100" alt="${d["Winning Team"]} logo">
-                    Super Bowl ${d.Game} (${d.index})
-                            <br> Winner: ${d["Winning team"]}
-                            <br> Date: ${d['Date']}
-                            <br> <b>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])}
-                            <br> <b>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])}
-                            <br>
-                            <br> All Info 
+                    <strong>${attributeDictionary[attribute1]}: ${formatComma(d[attribute1])} </strong>
+                    <strong>${attributeDictionary[attribute2]}: ${formatComma(d[attribute2])} </strong>
+                    <img src="logos/${logoDictionary[d["Winning team"]]}" width="125" height="125" alt="${d["Winning Team"]} logo">
+                    <strong>Super Bowl ${d.Game} (${d.index}) </strong>
+                            <strong> Winner: ${d["Winning team"]} </strong>
+                            Date: ${d['Date']} 
                             <br> Median Income: ${d.medianIncome}
                             <br> Ticket Cost % : ${d.ticketCostPercentage}
                             <br> Viewers: ${formatComma(d.viewers)}
                             <br> Attendees: ${formatComma(d['Attendance'])}
                             <br> Ticket Cost: $${formatComma(d['ticketCost'])}
                             <br> Ad Cost:  $${formatComma(d['adCost'])}
+                            <br> Ticket Sales: $${formatComma(d['ticketSales'])}
                         `);
                     })
                 .on("mousemove", function (event) {
                     tooltip.style("left", `${event.pageX + 10}px`)
-                        .style("top", `${event.pageY}px`);
+                    .style("top", `${event.pageY}px`);
+
+
                 })
                 .on("mouseout", function () {
+                    d3.select(this).select(".dotAttribute1").style("visibility", "visible");
+                    d3.select(this).select(".hover-image").style("visibility", "hidden");
                     tooltip.style("visibility", "hidden");
                 });
 
 
+            
+            
+            
+
             //Chart details
             svg.append("text")
-                .attr("x", width / 2 - margin.left - margin.right)
+                .attr("x", width / 2 - margin.left )
                 .attr("y", 0)
                 .text(`${attributeDictionary[attribute1]} vs ${attributeDictionary[attribute2]} `)
                 .style("font-size", "20px");
@@ -291,16 +369,16 @@
             //  X-axis label
             svg.append("text")
                 .attr("x", width / 2)
-                .attr("y", height + margin.bottom - 10)
+                .attr("y", height + margin.bottom - 5)
                 .attr("text-anchor", "middle")
                 .attr("font-size", "16px")
-                .text("Superbowl Number (Decimal)");
+                .text("Superbowl Game");
 
             // Y Attribute 1 label
             svg.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("x", -height / 2)
-                .attr("y", -margin.left + 10)
+                .attr("y", -margin.left + 20)
                 .attr("text-anchor", "middle")
                 .attr("font-size", "16px")
                 .text(`${attributeDictionary[attribute1]}`);
@@ -309,10 +387,43 @@
             svg.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("x", -height / 2)
-                .attr("y", width + margin.right)
+                .attr("y", width + margin.right - 10)
                 .attr("text-anchor", "middle")
                 .attr("font-size", "16px")
                 .text(`${attributeDictionary[attribute2]}`);
+
+
+            //Legend
+            const legend = svg.append("g")
+            .attr("transform", `translate(${width / 2 - 50}, 20)`)
+
+            legend.append("line")
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 20)
+                .attr("y2", 0)
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2);
+
+            legend.append("text")
+                .attr("x", 30)
+                .attr("y", 5)
+                .text("Attribute 1")
+                .style("font-size", "12px");
+
+            legend.append("line")
+                .attr("x1", 0)
+                .attr("y1", 20)
+                .attr("x2", 20)
+                .attr("y2", 20)
+                .attr("stroke", "red")
+                .attr("stroke-width", 2);
+
+            legend.append("text")
+                .attr("x", 30)
+                .attr("y", 25)
+                .text("Attribute 2")
+                .style("font-size", "12px");
 
                     }
 
